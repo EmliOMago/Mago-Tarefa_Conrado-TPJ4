@@ -21,6 +21,7 @@ namespace Assets.Script
         [HideInInspector] public bool morto = false;
         Rigidbody2D rigidB;
 
+
         // Start is called once before the first execution of Update after the MonoBehaviour is created
         void Start()
         {
@@ -75,9 +76,40 @@ namespace Assets.Script
             if (morto)
             {
                 transform.position = new Vector2(0, 0);
+                morto = false;
             }
 
 
+        }
+        void OnTriggerEnter2D(Collider2D other)
+        {
+            // Verifica se o objeto colidido está na layer "Moeda"
+            if (other.gameObject.layer == LayerMask.NameToLayer("Moeda"))
+            {
+                // Incrementa o contador de moedas
+                moedas++;
+
+                // Destroi a moeda
+                Destroy(other.gameObject);
+
+                Debug.Log("Moedas coletadas: " + moedas);
+            }
+
+            if (other.gameObject.layer == LayerMask.NameToLayer("Morto"))
+            {
+
+                Debug.Log("Você morreu com" + moedas + " Moedas coletadas");
+                morto = true;
+                // Reseta o contador de moedas
+                moedas = 0;
+            }
+
+            if (other.gameObject.layer == LayerMask.NameToLayer("Final"))
+            {
+                Debug.Log("Você venceu com" + moedas + " Moedas coletadas");
+                // Reseta o contador de moedas
+                moedas = 0;
+            }
         }
     }
 }
