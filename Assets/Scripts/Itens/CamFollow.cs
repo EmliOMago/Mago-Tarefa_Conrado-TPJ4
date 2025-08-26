@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine;
 
 public class CameraFollow : MonoBehaviour
 {
@@ -8,7 +7,7 @@ public class CameraFollow : MonoBehaviour
     public Vector3 offset = new Vector3(0f, 0f, -10f);
 
     [Header("Limites da Câmera")]
-    public bool usarLimites = false;
+    public bool usarLimites = true;
     public float minX = -10f;
     public float maxX = 10f;
     public float minY = -5f;
