@@ -1,24 +1,26 @@
 using System.Collections;
 using UnityEngine;
-/*
+
 namespace Assets.Script
 {
-    public class Jogador : MonoBehaviour
+    public class Samurai : MonoBehaviour
     {
         [HideInInspector] public int moedas = 0;
         public float jVelocidade = 2;
         public float jVelocidadeMaxima = 2;
         public float forcaPulo = 7;
         public float jVelocidadeMaximaPulo = 10;
-        public bool jdireita;
-        public Transform groundChecker;
-        public Transform projetil;
-
-        [HideInInspector] public float movimento;
+        public bool olhandoDireita;
+        [HideInInspector] Vector2 movimento;
+        // public float movimento;
         [HideInInspector] public bool pulo = false;
 
         [HideInInspector] public bool podePular = true;
         [HideInInspector] public bool morto = false;
+
+        public Transform groundChecker;
+        public Transform projetil;
+        Animator animator;
         Rigidbody2D rigidB;
 
 
@@ -27,6 +29,8 @@ namespace Assets.Script
         void Start()
         {
             rigidB = transform.GetComponent<Rigidbody2D>();
+            animator = transform.GetComponent<Animator>();
+            olhandoDireita = true;
         }
 
         // Update is called once per frame
@@ -35,6 +39,17 @@ namespace Assets.Script
             Debug.Log("está morto " + morto);
             Debug.Log("pode pular " + podePular);
             Debug.Log("Você tem " + moedas + " moedas");
+
+            if (olhandoDireita)
+            {
+                transform.eulerAngles = new Vector2(0, 0);
+            }
+
+            if (!olhandoDireita)
+            {
+                transform.eulerAngles = new Vector2(0, 180);
+            }
+
         }
 
         // Update is called once per frame
@@ -51,19 +66,28 @@ namespace Assets.Script
                     );
 
             // Logica da movimentação
-            movimento = Input.GetAxisRaw("Horizontal") * Time.deltaTime * jVelocidade;
-            transform.position += new Vector3(movimento, 0);
+            float horizontal = Input.GetAxis("Horizontal") * Time.deltaTime * jVelocidade;
+            movimento = new Vector2(horizontal, 0);
+            rigidB.linearVelocity += movimento;
+            rigidB.linearVelocityX = Mathf.Clamp(rigidB.linearVelocityX, -jVelocidadeMaxima, jVelocidadeMaxima);
 
-            if (movimento > 0)
+            if(rigidB.linearVelocityX < 0.1f || rigidB.linearVelocityX > -0.1f )
             {
-                transform.eulerAngles = new Vector2(0, 0);
-                jdireita = true;
+                if (rigidB.linearVelocityX > 0.1f)
+                {
+                    olhandoDireita = true;
+                }
+
+                if (rigidB.linearVelocityX < -0.1f)
+                {
+                    olhandoDireita = false;
+                }
+                animator.SetBool("andando", true);
             }
 
-            if (movimento < 0)
+            if (rigidB.linearVelocityX < 0.1f && rigidB.linearVelocityX > -0.1f)
             {
-                transform.eulerAngles = new Vector2(0, 180);
-                jdireita = false;
+                animator.SetBool("andando", false);
             }
 
             //Logica do tiro
@@ -71,13 +95,14 @@ namespace Assets.Script
             {
                 Transform instanciado = Instantiate(projetil);
                 instanciado.position = transform.position;
-                instanciado.GetComponent<Projetil>().direcao = new Vector2 (jdireita ? 1: -1, 0);
+                instanciado.GetComponent<Projetil>().direcao = new Vector2 (olhandoDireita ? 1: -1, 0);
                 instanciado.GetComponent<Projetil>().enabled = true;
             }
 
 
             // Logica do pulo
             pulo = Input.GetButtonDown("Jump");
+            animator.SetBool("pulando", !podePular);
 
             // Forma 2 de pulo: verificando sobreposição de colissões
             podePular = Physics2D.OverlapBox
@@ -94,7 +119,6 @@ namespace Assets.Script
                 podePular = false;
             }
 
-            
 
             // verificação de morte
             if (morto)
@@ -132,4 +156,3 @@ namespace Assets.Script
         }
     }
 }
-*/
